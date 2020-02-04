@@ -3,8 +3,8 @@ require_relative 'tile.rb'
 class Board
 
     def initialize
-        empty_board(10) #sizes > 15 will likely result in display bugs
-        place_bombs(9) #1/x chance a given tile is a bomb, x being the argument
+        empty_board(9) #sizes > 15 will likely result in display bugs
+        place_bombs(10) #1/x chance a given tile is a bomb, x being the argument
         bomb_counter #stores in each tile the number of adjacent bombs
     end
 
@@ -113,14 +113,14 @@ class Board
 
         tiles =
             [
-                pos_to_tile([x, y+1]),
-                pos_to_tile([x+1, y+1]),
-                pos_to_tile([x-1, y-1]),
-                pos_to_tile([x+1, y-1]),
-                pos_to_tile([x-1, y+1]),
-                pos_to_tile([x, y-1]),
-                pos_to_tile([x+1, y]),
-                pos_to_tile([x-1, y])
+                pos_to_tile([y, x+1]),
+                pos_to_tile([y+1, x+1]),
+                pos_to_tile([y-1, x-1]),
+                pos_to_tile([y+1, x-1]),
+                pos_to_tile([y-1, x+1]),
+                pos_to_tile([y, x-1]),
+                pos_to_tile([y+1, x]),
+                pos_to_tile([y-1, x])
             ]
 
         #selects truthy tiles, removing nils
@@ -130,7 +130,7 @@ class Board
 
     #return [tile, pos] if valid pos, else []
     def pos_to_tile(pos)
-        x, y = pos
+        y, x = pos
 
         #returns empty array if pos is invalid
         return [] unless x && y
@@ -150,21 +150,20 @@ class Board
     end
 
     def sweep_tile(pos)
-        x, y = pos.flatten
+        y, x = pos.flatten
 
         #prevents sweeping when a tile has bomb count of more than 0
         current_tile_touple = pos_to_tile(pos)
+        if current_tile_touple[0]
+          return [current_tile_touple] if current_tile_touple[0].bomb_count > 0
+        end
 
         tiles =
             [
-                pos_to_tile([x, y+1]),
-                pos_to_tile([x+1, y+1]),
-                pos_to_tile([x-1, y-1]),
-                pos_to_tile([x+1, y-1]),
-                pos_to_tile([x-1, y+1]),
-                pos_to_tile([x, y-1]),
-                pos_to_tile([x+1, y]),
-                pos_to_tile([x-1, y])
+                pos_to_tile([y, x+1]),
+                pos_to_tile([y, x-1]),
+                pos_to_tile([y+1, x]),
+                pos_to_tile([y-1, x])
             ]
 
         #selects tiles that are valid pos & unswept
@@ -173,12 +172,15 @@ class Board
 
         return tiles if tiles.count == 0
 
+        #sets tile to 'swept' status
         tiles.each do |tile_touple|
             tile_touple[0].swept = true
         end
 
+        #selects only the tiles w/out bombs
         tiles = tiles.select {|tile_touple| tile_touple[0].bomb == false}
 
+        #recursive sweeping to cover entire area
         more_tiles = []
         tiles.each {|tile_touple| more_tiles += sweep_tile(tile_touple[1]) if tile_touple[0].bomb_count == 0}
         tiles + more_tiles
