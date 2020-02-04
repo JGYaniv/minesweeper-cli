@@ -1,4 +1,4 @@
-# minesweeper
+# minesweeper-cli
 
 Yes, you can now play 9x9 Minesweeper in the CLI!
 
@@ -12,5 +12,5 @@ Instructions:
  - To explore a flagged, tile, first un-flag it
 
 Customize:
- - Adjust frequency of bombs by reducing range in Board#place_bombs (line 31)
-# minesweeper-cli
+ - Adjust frequency of bombs with argument for Board#place_bombs(d) in Board#initialize (line 7)
+ - Adjust size of board with argument for Board#empty_board(size), recommended max 12 for readability
